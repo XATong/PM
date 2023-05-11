@@ -28,7 +28,7 @@ public class SwaggerConfig {
                 .apiInfo(webApiInfo())
                 .select()
                 //控制器controller的位置
-                .apis(RequestHandlerSelectors.basePackage("com.xk.yuapo.controller"))
+                .apis(RequestHandlerSelectors.basePackage("com.xk.yupao.controller"))
                 .paths(PathSelectors.any())
                 .build();
 
