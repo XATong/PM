@@ -11,6 +11,8 @@ import com.xk.yupao.model.domain.Team;
 import com.xk.yupao.model.domain.User;
 import com.xk.yupao.model.dto.TeamQuery;
 import com.xk.yupao.model.request.TeamAddRequest;
+import com.xk.yupao.model.request.TeamUpdateRequest;
+import com.xk.yupao.model.vo.TeamUserVO;
 import com.xk.yupao.service.TeamService;
 import com.xk.yupao.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -76,15 +78,16 @@ public class TeamController {
 
     /**
      * 更新队伍信息
-     * @param team
+     * @param
      * @return
      */
     @PostMapping("/update")
-    public BaseResponse<Boolean> updateTeam(@RequestBody Team team){
-        if (team == null){
+    public BaseResponse<Boolean> updateTeam(@RequestBody TeamUpdateRequest teamUpdateRequest, HttpServletRequest request){
+        if (teamUpdateRequest == null){
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        boolean result = teamService.updateById(team);
+        User loginUser = userService.getCurrentUser(request);
+        boolean result = teamService.updateTeam(teamUpdateRequest, loginUser);
         if (!result){
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "队伍更新失败");
         }
@@ -110,19 +113,27 @@ public class TeamController {
     }
 
 
+    /**
+     * 查询队伍列表
+     * @param teamQuery
+     * @return
+     */
     @GetMapping("/list")
-    public BaseResponse<List<Team>> listTeams(TeamQuery teamQuery){
+    public BaseResponse<List<TeamUserVO>> listTeams(TeamQuery teamQuery, HttpServletRequest request){
         if (teamQuery == null){
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        Team team = new Team();
-        BeanUtil.copyProperties(teamQuery, team);
-        QueryWrapper<Team> queryWrapper = new QueryWrapper<>(team);
-        List<Team> teamList = teamService.list(queryWrapper);
+        boolean isAdmin = userService.isAdmin(request);
+        List<TeamUserVO> teamList = teamService.listTeams(teamQuery, isAdmin);
         return ResultUtils.success(teamList);
     }
 
 
+    /**
+     * 分页查询队伍列表
+     * @param teamQuery
+     * @return
+     */
     @GetMapping("/list/page")
     public BaseResponse<Page<Team>> listTeamsByPage(TeamQuery teamQuery){
         if (teamQuery == null){

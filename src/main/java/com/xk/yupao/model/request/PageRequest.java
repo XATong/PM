@@ -1,4 +1,4 @@
-package com.xk.yupao.common;
+package com.xk.yupao.model.request;
 
 import lombok.Data;
 

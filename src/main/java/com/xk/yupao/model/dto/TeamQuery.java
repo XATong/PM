@@ -1,8 +1,6 @@
 package com.xk.yupao.model.dto;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.xk.yupao.common.PageRequest;
+import com.xk.yupao.model.request.PageRequest;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -12,10 +10,12 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class TeamQuery extends PageRequest {
+
+    private static final long serialVersionUID = 3579536454416644128L;
+
     /**
      * id
      */
-    @TableId(type = IdType.AUTO)
     private Long id;
 
     /**
@@ -27,6 +27,11 @@ public class TeamQuery extends PageRequest {
      * 描述
      */
     private String description;
+
+    /**
+     * 搜索关键词(同时对队伍名称和描述搜索)
+     */
+    private String searchText;
 
     /**
      * 最大人数
