@@ -4,6 +4,8 @@ import com.xk.yupao.model.domain.Team;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.xk.yupao.model.domain.User;
 import com.xk.yupao.model.dto.TeamQuery;
+import com.xk.yupao.model.request.TeamJoinRequest;
+import com.xk.yupao.model.request.TeamQuitRequest;
 import com.xk.yupao.model.request.TeamUpdateRequest;
 import com.xk.yupao.model.vo.TeamUserVO;
 
@@ -40,4 +42,28 @@ public interface TeamService extends IService<Team> {
      * @return
      */
     boolean updateTeam(TeamUpdateRequest teamUpdateRequest, User loginUser);
+
+    /**
+     * 加入队伍
+     * @param teamJoinRequest
+     * @param loginUser
+     * @return
+     */
+    boolean joinTeam(TeamJoinRequest teamJoinRequest, User loginUser);
+
+    /**
+     * 退出队伍
+     * @param teamQuitRequest
+     * @param loginUser
+     * @return
+     */
+    boolean quitTeam(TeamQuitRequest teamQuitRequest, User loginUser);
+
+    /**
+     * 解散队伍
+     * @param id
+     * @param loginUser
+     * @return
+     */
+    boolean deleteTeam(long id, User loginUser);
 }
