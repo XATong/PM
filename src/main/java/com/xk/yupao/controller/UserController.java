@@ -33,7 +33,7 @@ import static com.xk.yupao.utils.RedisConstants.RECOMMEND_TTL;
  */
 @RestController
 @RequestMapping("/user")
-@CrossOrigin(origins = {"http://localhost:5173/", "http://localhost:3000/ "}, allowCredentials = "true")
+@CrossOrigin(origins = {"http://pm.javat.top", "http://127.0.0.1:8081/", "http://pm-backend.javat.top"}, allowCredentials = "true")
 @Slf4j
 public class UserController {
 
@@ -228,5 +228,22 @@ public class UserController {
             log.error("redis set key error", e);
         }
         return ResultUtils.success(userPage);
+    }
+
+
+    /**
+     * 获取最匹配的用户
+     * @param num 匹配个数
+     * @param request
+     * @return
+     */
+    @GetMapping("/match")
+    public BaseResponse<List<User>> matchUsers(long num, HttpServletRequest request) {
+        if (num <= 0 || num > 20) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User loginUser = userService.getCurrentUser(request);
+        List<User> userList = userService.matchUsers(num, loginUser);
+        return ResultUtils.success(userList);
     }
 }

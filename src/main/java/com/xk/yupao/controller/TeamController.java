@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -33,7 +34,7 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping("/team")
-@CrossOrigin(origins = {"http://localhost:5173/", "http://localhost:3000/"}, allowCredentials = "true")
+@CrossOrigin(origins = {"http://pm.javat.top", "http://127.0.0.1:8081/", "http://pm-backend.javat.top"}, allowCredentials = "true")
 @Slf4j
 public class TeamController {
 
@@ -165,8 +166,31 @@ public class TeamController {
         if (teamQuery == null){
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
+        // 1、查询队伍列表
         boolean isAdmin = userService.isAdmin(request);
         List<TeamUserVO> teamList = teamService.listTeams(teamQuery, isAdmin);
+        // 2、判断当前用户是否已加入队伍
+        List<Long> teamIdList = teamList.stream().map(TeamUserVO::getId).collect(Collectors.toList());
+        //判断查询出的队伍列表中, 用户加入了那些队伍, 实现队伍卡片的加入、退出按钮功能
+        try {
+            User loginUser = userService.getCurrentUser(request);
+            List<UserTeam> userTeamList = userTeamService.query()
+                    .eq("userId", loginUser.getId()).in("teamId", teamIdList).list();
+            //当前已加入的队伍id集合
+            Set<Long> hasJoinTeamIdSet = userTeamList.stream().map(UserTeam::getTeamId).collect(Collectors.toSet());
+            teamList.forEach(team -> {
+                boolean hasJoin = hasJoinTeamIdSet.contains(team.getId());
+                team.setHasJoin(hasJoin);
+            });
+        } catch (Exception exception) {
+
+        }
+        // 3、查询已加入队伍的人数
+        List<UserTeam> userTeamList = userTeamService.query().in("teamId", teamIdList).list();
+        Map<Long, List<UserTeam>> teamIdUserTeamList = userTeamList.stream()
+                .collect(Collectors.groupingBy(UserTeam::getTeamId));
+        teamList.forEach(team ->
+                team.setHasJoinNum(teamIdUserTeamList.getOrDefault(team.getId(), new ArrayList<>()).size()));
         return ResultUtils.success(teamList);
     }
 
@@ -205,6 +229,12 @@ public class TeamController {
         teamQuery.setUserId(loginUser.getId());
 
         List<TeamUserVO> createTeamList = getTeamList(teamQuery);
+        List<Long> teamIdList = createTeamList.stream().map(TeamUserVO::getId).collect(Collectors.toList());
+        List<UserTeam> userTeamList = userTeamService.query().in("teamId", teamIdList).list();
+        Map<Long, List<UserTeam>> teamIdUserTeamList = userTeamList.stream()
+                .collect(Collectors.groupingBy(UserTeam::getTeamId));
+        createTeamList.forEach(team ->
+                team.setHasJoinNum(teamIdUserTeamList.getOrDefault(team.getId(), new ArrayList<>()).size()));
         return ResultUtils.success(createTeamList);
     }
 
@@ -229,6 +259,16 @@ public class TeamController {
         teamQuery.setIdList(idList);
 
         List<TeamUserVO> joinTeamList = getTeamList(teamQuery);
+        //实现退出队伍按钮功能
+        joinTeamList.forEach(team -> {
+            team.setHasJoin(true);
+        });
+        List<Long> teamIdList = joinTeamList.stream().map(TeamUserVO::getId).collect(Collectors.toList());
+        userTeamList = userTeamService.query().in("teamId", teamIdList).list();
+        Map<Long, List<UserTeam>> teamIdUserTeamList = userTeamList.stream()
+                .collect(Collectors.groupingBy(UserTeam::getTeamId));
+        joinTeamList.forEach(team ->
+                team.setHasJoinNum(teamIdUserTeamList.getOrDefault(team.getId(), new ArrayList<>()).size()));
         return ResultUtils.success(joinTeamList);
     }
 
