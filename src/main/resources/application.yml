@@ -19,9 +19,9 @@ spring:
       matching-strategy: ant_path_matcher
   #redis 配置
   redis:
-    host: 106.52.194.12
+    host: xxxx
     port: 6379
-    password: qhst66
+    password: xxxx
     database: 0
     lettuce:
       pool:
