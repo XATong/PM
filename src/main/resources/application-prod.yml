@@ -2,9 +2,9 @@ spring:
   # DataSource Config
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: 'jdbc:mysql://106.52.194.12:3306/usercenter?useSSL=false'
+    url: 'jdbc:mysql://xxxx:3306/usercenter?useSSL=false'
     username: root
-    password: qaz123
+    password: xxxx
   # session 失效时间
   session:
     timeout: 86400
